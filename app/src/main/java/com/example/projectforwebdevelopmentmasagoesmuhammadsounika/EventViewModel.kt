@@ -3,31 +3,21 @@ package com.example.projectforwebdevelopmentmasagoesmuhammadsounika
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.IOException
-import java.net.UnknownHostException
 
 data class CartItem(
     val event: Event,
     val quantity: Int
 )
 
-sealed interface EventUiState {
-    object Loading : EventUiState
-    data class Success(val events: List<Event>) : EventUiState
-    data class Error(val message: String) : EventUiState
-}
-
 class EventViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _uiState = MutableStateFlow<EventUiState>(EventUiState.Loading)
-    val uiState: StateFlow<EventUiState> = _uiState
+    private val _events = MutableStateFlow<List<Event>>(emptyList())
+    val events: StateFlow<List<Event>> = _events.asStateFlow()
 
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems: StateFlow<List<CartItem>> = _cartItems.asStateFlow()
@@ -75,51 +65,36 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun checkoutCart() {
-        val currentState = _uiState.value
-        if (currentState is EventUiState.Success) {
-            val updatedEvents = currentState.events.map { event ->
-                val cartMatch = _cartItems.value.find { it.event.id == event.id }
-                if (cartMatch != null) {
-                    val newSeats = maxOf(0, event.availableSeats - cartMatch.quantity)
-                    seatReductions[event.id] = (seatReductions[event.id] ?: 0) + cartMatch.quantity
-                    event.copy(availableSeats = newSeats)
-                } else {
-                    event
-                }
+        val currentEvents = _events.value
+        val updatedEvents = currentEvents.map { event ->
+            val cartMatch = _cartItems.value.find { it.event.id == event.id }
+            if (cartMatch != null) {
+                val newSeats = maxOf(0, event.availableSeats - cartMatch.quantity)
+                seatReductions[event.id] = (seatReductions[event.id] ?: 0) + cartMatch.quantity
+                event.copy(availableSeats = newSeats)
+            } else {
+                event
             }
-            _uiState.value = EventUiState.Success(updatedEvents)
         }
+        _events.value = updatedEvents
         clearCart()
     }
 
     fun fetchEvents() {
         viewModelScope.launch {
-            _uiState.value = EventUiState.Loading
             try {
-                // Fetch live from GitHub via Retrofit first!
                 val eventsList = RetrofitClient.apiService.getEvents()
-
-                if (eventsList.isEmpty()) {
-                    _uiState.value = EventUiState.Error("No tickets available right now.")
-                } else {
-                    val adjustedEvents = eventsList.map { event ->
-                        val reducedBy = seatReductions[event.id] ?: 0
-                        if (reducedBy > 0) {
-                            event.copy(availableSeats = maxOf(0, event.availableSeats - reducedBy))
-                        } else {
-                            event
-                        }
+                val adjustedEvents = eventsList.map { event ->
+                    val reducedBy = seatReductions[event.id] ?: 0
+                    if (reducedBy > 0) {
+                        event.copy(availableSeats = maxOf(0, event.availableSeats - reducedBy))
+                    } else {
+                        event
                     }
-                    _uiState.value = EventUiState.Success(adjustedEvents)
                 }
-            } catch (e: Exception) {
-                val errorMessage = when (e) {
-                    is UnknownHostException, is IOException ->
-                        "No internet connection. Please check your Wi-Fi or Mobile Data and try again."
-                    else ->
-                        e.localizedMessage ?: "Unable to connect to the backend server. Please try again."
-                }
-                _uiState.value = EventUiState.Error(errorMessage)
+                _events.value = adjustedEvents
+            } catch (_: Exception) {
+                _events.value = emptyList()
             }
         }
     }
