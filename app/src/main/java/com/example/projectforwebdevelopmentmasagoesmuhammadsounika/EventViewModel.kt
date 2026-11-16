@@ -48,9 +48,6 @@ class EventViewModel : ViewModel() {
     fun fetchEvents() {
         viewModelScope.launch {
             _uiState.value = EventUiState.Loading
-
-            /*
-            // Remote API call - uncomment when backend API / database is ready
             try {
                 val eventsList = RetrofitClient.apiService.getEvents()
                 _uiState.value = EventUiState.Success(eventsList)
@@ -59,49 +56,6 @@ class EventViewModel : ViewModel() {
                     e.localizedMessage ?: "Failed to connect to the backend server"
                 )
             }
-            */
-
-            // Local sample data for development and testing
-            val sampleEvents = listOf(
-                Event(
-                    id = "1",
-                    title = "Tech Hackathon 2026",
-                    description = "Join us for a 24-hour coding challenge! Build innovative web & mobile apps and win exciting prizes.",
-                    location = "Student Center - Main Hall",
-                    date = "Oct 25, 2026",
-                    price = 0.0,
-                    availableSeats = 50
-                ),
-                Event(
-                    id = "2",
-                    title = "Campus Music Festival",
-                    description = "An evening of live music featuring top student bands, food trucks, and fun activities.",
-                    location = "University Amphitheater",
-                    date = "Nov 02, 2026",
-                    price = 15.00,
-                    availableSeats = 120
-                ),
-                Event(
-                    id = "3",
-                    title = "Web Development Workshop",
-                    description = "Learn modern frontend and backend development techniques using Kotlin, Compose, and REST APIs.",
-                    location = "Engineering Building, Room 204",
-                    date = "Nov 10, 2026",
-                    price = 5.00,
-                    availableSeats = 30
-                ),
-                Event(
-                    id = "4",
-                    title = "Career & Internship Fair",
-                    description = "Meet recruiters from top tech companies, present your resume, and explore career opportunities.",
-                    location = "Campus Recreation Center",
-                    date = "Nov 18, 2026",
-                    price = 0.0,
-                    availableSeats = 200
-                )
-            )
-
-            _uiState.value = EventUiState.Success(sampleEvents)
         }
     }
 }
