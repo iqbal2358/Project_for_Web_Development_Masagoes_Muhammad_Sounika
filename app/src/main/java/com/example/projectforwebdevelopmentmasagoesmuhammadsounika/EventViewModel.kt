@@ -3,8 +3,6 @@ package com.example.projectforwebdevelopmentmasagoesmuhammadsounika
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -98,16 +96,8 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             _uiState.value = EventUiState.Loading
             try {
-                val eventsList = withContext(Dispatchers.IO) {
-                    try {
-                        val context = getApplication<Application>().applicationContext
-                        val jsonString = context.assets.open("events.json").bufferedReader().use { it.readText() }
-                        val listType = object : TypeToken<List<Event>>() {}.type
-                        Gson().fromJson<List<Event>>(jsonString, listType)
-                    } catch (_: Exception) {
-                        RetrofitClient.apiService.getEvents()
-                    }
-                }
+                // Fetch live from GitHub via Retrofit first!
+                val eventsList = RetrofitClient.apiService.getEvents()
 
                 if (eventsList.isEmpty()) {
                     _uiState.value = EventUiState.Error("No tickets available right now.")
