@@ -1,7 +1,10 @@
 package com.example.projectforwebdevelopmentmasagoesmuhammadsounika
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,7 +26,7 @@ sealed interface EventUiState {
     data class Error(val message: String) : EventUiState
 }
 
-class EventViewModel : ViewModel() {
+class EventViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow<EventUiState>(EventUiState.Loading)
     val uiState: StateFlow<EventUiState> = _uiState
@@ -96,8 +99,16 @@ class EventViewModel : ViewModel() {
             _uiState.value = EventUiState.Loading
             try {
                 val eventsList = withContext(Dispatchers.IO) {
-                    RetrofitClient.apiService.getEvents()
+                    try {
+                        val context = getApplication<Application>().applicationContext
+                        val jsonString = context.assets.open("events.json").bufferedReader().use { it.readText() }
+                        val listType = object : TypeToken<List<Event>>() {}.type
+                        Gson().fromJson<List<Event>>(jsonString, listType)
+                    } catch (_: Exception) {
+                        RetrofitClient.apiService.getEvents()
+                    }
                 }
+
                 if (eventsList.isEmpty()) {
                     _uiState.value = EventUiState.Error("No tickets available right now.")
                 } else {

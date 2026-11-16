@@ -3,10 +3,13 @@ package com.example.projectforwebdevelopmentmasagoesmuhammadsounika
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Header
 
 interface ApiService {
     @GET("events.json")
-    suspend fun getEvents(): List<Event>
+    suspend fun getEvents(
+        @Header("Cache-Control") cacheControl: String = "no-cache"
+    ): List<Event>
 }
 
 object RetrofitClient {
