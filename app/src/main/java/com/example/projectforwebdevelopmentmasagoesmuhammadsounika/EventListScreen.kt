@@ -91,7 +91,10 @@ fun EventListScreen(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(vertical = 12.dp)
                         ) {
-                            items(state.events) { event ->
+                            items(
+                                items = state.events,
+                                key = { it.id }
+                            ) { event ->
                                 EventCard(
                                     event = event,
                                     onBookClick = { clickedEvent ->

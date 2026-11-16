@@ -2,7 +2,9 @@ package com.example.projectforwebdevelopmentmasagoesmuhammadsounika
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +23,7 @@ fun EventDetailDialog(
 ) {
     var ticketCount by remember { mutableIntStateOf(1) }
     val maxTickets = if (event.availableSeats > 0) event.availableSeats else 1
+    val scrollState = rememberScrollState()
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -28,7 +31,9 @@ fun EventDetailDialog(
             Text(text = event.title, fontWeight = FontWeight.Bold, fontSize = 20.sp)
         },
         text = {
-            Column {
+            Column(
+                modifier = Modifier.verticalScroll(scrollState)
+            ) {
                 // Event Banner Placeholder
                 Box(
                     modifier = Modifier
