@@ -18,7 +18,7 @@ fun EventCard(
     onBookClick: (Event) -> Unit
 ) {
     Card(
-        onClick = { onBookClick(event) },
+        onClick = { if (event.availableSeats > 0) onBookClick(event) },
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
@@ -62,9 +62,13 @@ fun EventCard(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = if (event.availableSeats == 1) "Only 1 seat left!" else "Available seats: ${event.availableSeats}",
+                    text = when {
+                        event.availableSeats == 0 -> "Sold Out"
+                        event.availableSeats == 1 -> "Only 1 seat left!"
+                        else -> "Available seats: ${event.availableSeats}"
+                    },
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (event.availableSeats == 1) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary,
+                    color = if (event.availableSeats <= 1) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary,
                     fontWeight = FontWeight.Bold
                 )
 
@@ -91,6 +95,7 @@ fun EventCard(
             // Section B (Right): Big Vertical Rectangle Book Button
             Button(
                 onClick = { onBookClick(event) },
+                enabled = event.availableSeats > 0,
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(115.dp),
@@ -102,7 +107,7 @@ fun EventCard(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "Book\nTicket",
+                        text = if (event.availableSeats == 0) "Sold\nOut" else "Book\nTicket",
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,

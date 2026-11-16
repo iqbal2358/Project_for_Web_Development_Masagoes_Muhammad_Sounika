@@ -31,6 +31,8 @@ class EventViewModel : ViewModel() {
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems: StateFlow<List<CartItem>> = _cartItems.asStateFlow()
 
+    private val seatReductions = mutableMapOf<String, Int>()
+
     init {
         fetchEvents()
     }
@@ -71,6 +73,24 @@ class EventViewModel : ViewModel() {
         _cartItems.value = emptyList()
     }
 
+    fun checkoutCart() {
+        val currentState = _uiState.value
+        if (currentState is EventUiState.Success) {
+            val updatedEvents = currentState.events.map { event ->
+                val cartMatch = _cartItems.value.find { it.event.id == event.id }
+                if (cartMatch != null) {
+                    val newSeats = maxOf(0, event.availableSeats - cartMatch.quantity)
+                    seatReductions[event.id] = (seatReductions[event.id] ?: 0) + cartMatch.quantity
+                    event.copy(availableSeats = newSeats)
+                } else {
+                    event
+                }
+            }
+            _uiState.value = EventUiState.Success(updatedEvents)
+        }
+        clearCart()
+    }
+
     fun fetchEvents() {
         viewModelScope.launch {
             _uiState.value = EventUiState.Loading
@@ -81,7 +101,15 @@ class EventViewModel : ViewModel() {
                 if (eventsList.isEmpty()) {
                     _uiState.value = EventUiState.Error("No tickets available right now.")
                 } else {
-                    _uiState.value = EventUiState.Success(eventsList)
+                    val adjustedEvents = eventsList.map { event ->
+                        val reducedBy = seatReductions[event.id] ?: 0
+                        if (reducedBy > 0) {
+                            event.copy(availableSeats = maxOf(0, event.availableSeats - reducedBy))
+                        } else {
+                            event
+                        }
+                    }
+                    _uiState.value = EventUiState.Success(adjustedEvents)
                 }
             } catch (e: Exception) {
                 val errorMessage = when (e) {

@@ -172,9 +172,9 @@ fun EventListScreen(
                     onRemoveItem = { event -> viewModel.removeFromCart(event) },
                     onClearCart = { viewModel.clearCart() },
                     onCheckout = {
-                        viewModel.clearCart()
+                        viewModel.checkoutCart()
                         showCartDialog = false
-                        Toast.makeText(context, "Order confirmed! See you at the events.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Order confirmed! Ticket seats updated.", Toast.LENGTH_LONG).show()
                     }
                 )
             }
