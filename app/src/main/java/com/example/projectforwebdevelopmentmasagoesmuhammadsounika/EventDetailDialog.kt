@@ -34,17 +34,17 @@ fun EventDetailDialog(
             Column(
                 modifier = Modifier.verticalScroll(scrollState)
             ) {
-                // Event Banner Placeholder
+                // Event Banner Header
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(90.dp)
+                        .height(80.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .background(MaterialTheme.colorScheme.primaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "🎟️ " + event.title,
+                        text = event.title,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         fontSize = 16.sp
@@ -54,7 +54,7 @@ fun EventDetailDialog(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = "📅 ${event.date}  |  📍 ${event.location}",
+                    text = "${event.date}  |  ${event.location}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -69,7 +69,7 @@ fun EventDetailDialog(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = "🎟️ Remaining seats: ${event.availableSeats}",
+                    text = "Remaining seats: ${event.availableSeats}",
                     style = MaterialTheme.typography.bodySmall,
                     color = if (event.availableSeats < 10) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary,
                     fontWeight = FontWeight.Medium
