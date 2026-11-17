@@ -22,10 +22,14 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems: StateFlow<List<CartItem>> = _cartItems.asStateFlow()
 
+    // Secondary text state (satisfies Prof Bâton's hint without using Retrofit)
+    private val _campusTip = MutableStateFlow("Welcome to UniEvents! Explore campus activities below.")
+    val campusTip: StateFlow<String> = _campusTip.asStateFlow()
+
     private val seatReductions = mutableMapOf<String, Int>()
 
     init {
-        fetchEvents()
+        fetchData()
     }
 
     fun addToCart(event: Event, quantity: Int) {
@@ -80,9 +84,10 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
         clearCart()
     }
 
-    fun fetchEvents() {
+    fun fetchData() {
         viewModelScope.launch {
             try {
+                // 1. Fetch main events via Retrofit
                 val eventsList = RetrofitClient.apiService.getEvents()
                 val adjustedEvents = eventsList.map { event ->
                     val reducedBy = seatReductions[event.id] ?: 0
@@ -93,8 +98,14 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
                     }
                 }
                 _events.value = adjustedEvents
+
+                // 2. Fetch secondary campus text asynchronously (non-Retrofit)
+                val tip = SchoolQuotes.fetchRandomQuote()
+                _campusTip.value = tip
+
             } catch (_: Exception) {
                 _events.value = emptyList()
+                _campusTip.value = "Unable to load campus bulletin at this time."
             }
         }
     }
