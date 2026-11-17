@@ -1,4 +1,4 @@
-package com.example.unievents
+package com.example.projectforwebdevelopmentmasagoesmuhammadsounika
 
 import kotlinx.coroutines.delay
 
@@ -8,7 +8,7 @@ object SchoolQuotes {
         "\"Deadlines are just milestones on the road to a finished app.\" — ISEP Dev Team",
         "\"Code, test, debug, repeat. That's the engineer's way.\" — CS Student Proverb",
         "\"A little progress each day adds up to big results.\" — Study Motivation",
-        "\"Collaboration is the key to building great Android apps.\" — UniEvents Motto"
+        "\"Collaboration is the key to building great Android apps.\" — UniEvents Motto",
         "\"The university is a place where exploration meets purpose.\" — Campus Life",
         "\"Every lecture, late-night study session, and event builds the foundation of your journey.\" — Student Philosophy",
         "\"Balance your books, your activities, and your rest—growth happens in the spaces between.\" — Campus Wellness",
