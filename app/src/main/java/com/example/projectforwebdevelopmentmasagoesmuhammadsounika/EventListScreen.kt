@@ -20,6 +20,7 @@ fun EventListScreen(
 ) {
     val events by viewModel.events.collectAsState()
     val cartItems by viewModel.cartItems.collectAsState()
+    val campusTip by viewModel.campusTip.collectAsState() // Collect the quote state
     val context = LocalContext.current
 
     var selectedEvent by remember { mutableStateOf<Event?>(null) }
@@ -65,8 +66,37 @@ fun EventListScreen(
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 12.dp)
+                    contentPadding = PaddingValues(vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    // 1. Campus Bulletin Card (Satisfying Prof Bâton's hint!)
+                    item {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 4.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    text = "💡 Campus Bulletin Tip",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = campusTip,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                    }
+
+                    // 2. Event List Items
                     items(
                         items = events,
                         key = { it.id }
